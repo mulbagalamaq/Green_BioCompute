@@ -52,7 +52,7 @@ export function createEquipmentDescription(equipment: {
   carbon_footprint_kg: string;
   annual_usage_hours: string;
   annual_carbon_impact_kg: string;
-  has_api?: boolean;
+  has_api?: boolean | null;
   api_vendor?: string | null;
 }): string {
   const parts = [

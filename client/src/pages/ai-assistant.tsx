@@ -76,7 +76,7 @@ export default function AIAssistant() {
         <CardHeader>
           <CardTitle>Equipment Emissions Assistant</CardTitle>
           <CardDescription>
-            Powered by Llama 3.1 70B with RAG over your equipment data
+            Powered by Llama 3.3 70B with RAG over your equipment data
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col h-[calc(100%-5rem)]">
