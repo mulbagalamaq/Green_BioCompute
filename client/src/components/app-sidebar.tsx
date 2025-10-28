@@ -1,4 +1,4 @@
-import { BarChart3, Zap, Settings, FileText, Package, Home } from "lucide-react";
+import { BarChart3, Zap, Settings, FileText, Package, Home, Upload, MessageSquare } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,16 @@ const menuItems = [
     title: "Equipment Inventory",
     url: "/equipment",
     icon: Package,
+  },
+  {
+    title: "Data Upload",
+    url: "/data-upload",
+    icon: Upload,
+  },
+  {
+    title: "AI Assistant",
+    url: "/ai-assistant",
+    icon: MessageSquare,
   },
   {
     title: "API Integrations",

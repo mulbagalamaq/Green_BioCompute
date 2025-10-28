@@ -10,6 +10,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Dashboard from "@/pages/dashboard";
 import Equipment from "@/pages/equipment";
 import Integrations from "@/pages/integrations";
+import DataUpload from "@/pages/data-upload";
+import AIAssistant from "@/pages/ai-assistant";
 import Reports from "@/pages/reports";
 import Analytics from "@/pages/analytics";
 import Settings from "@/pages/settings";
@@ -21,6 +23,8 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/equipment" component={Equipment} />
       <Route path="/integrations" component={Integrations} />
+      <Route path="/data-upload" component={DataUpload} />
+      <Route path="/ai-assistant" component={AIAssistant} />
       <Route path="/reports" component={Reports} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/settings" component={Settings} />

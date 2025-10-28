@@ -32,25 +32,25 @@
 
   --sidebar-border: 220 8% 86%;
 
-  --sidebar-primary: 220 75% 50%;
+  --sidebar-primary: 120 61% 35%;
 
-  --sidebar-primary-foreground: 220 10% 98%;
+  --sidebar-primary-foreground: 120 10% 98%;
 
-  --sidebar-accent: 220 12% 89%;
+  --sidebar-accent: 120 12% 89%;
 
-  --sidebar-accent-foreground: 220 15% 25%;
+  --sidebar-accent-foreground: 120 15% 25%;
 
-  --sidebar-ring: 220 75% 56%;
+  --sidebar-ring: 120 61% 40%;
 
-  --popover: 220 8% 92%;
+  --popover: 120 8% 92%;
 
-  --popover-foreground: 220 15% 22%;
+  --popover-foreground: 120 15% 22%;
 
-  --popover-border: 220 10% 84%;
+  --popover-border: 120 10% 84%;
 
-  --primary: 220 75% 50%;
+  --primary: 120 61% 35%;
 
-  --primary-foreground: 220 10% 98%;
+  --primary-foreground: 120 10% 98%;
 
   --secondary: 220 10% 88%;
 
@@ -68,10 +68,10 @@
 
   --destructive-foreground: 0 5% 98%;
 
-  --input: 220 12% 75%;
-  --ring: 220 75% 56%;
-  --chart-1: 220 75% 48%;
-  --chart-2: 280 65% 52%;
+  --input: 120 12% 75%;
+  --ring: 120 61% 40%;
+  --chart-1: 120 61% 45%;
+  --chart-2: 146 50% 36%;
   --chart-3: 160 60% 42%;
   --chart-4: 38 90% 50%;
   --chart-5: 142 70% 40%;
@@ -150,25 +150,25 @@
 
   --sidebar-border: 220 10% 24%;
 
-  --sidebar-primary: 220 75% 56%;
+  --sidebar-primary: 120 61% 40%;
 
-  --sidebar-primary-foreground: 220 5% 98%;
+  --sidebar-primary-foreground: 120 5% 98%;
 
-  --sidebar-accent: 220 12% 24%;
+  --sidebar-accent: 120 12% 24%;
 
-  --sidebar-accent-foreground: 220 8% 90%;
+  --sidebar-accent-foreground: 120 8% 90%;
 
-  --sidebar-ring: 220 75% 56%;
+  --sidebar-ring: 120 61% 45%;
 
-  --popover: 220 10% 22%;
+  --popover: 120 10% 22%;
 
-  --popover-foreground: 220 8% 88%;
+  --popover-foreground: 120 8% 88%;
 
-  --popover-border: 220 10% 26%;
+  --popover-border: 120 10% 26%;
 
-  --primary: 220 75% 48%;
+  --primary: 120 61% 40%;
 
-  --primary-foreground: 220 5% 98%;
+  --primary-foreground: 120 5% 98%;
 
   --secondary: 220 10% 25%;
 
@@ -186,10 +186,10 @@
 
   --destructive-foreground: 0 5% 98%;
 
-  --input: 220 12% 35%;
-  --ring: 220 75% 56%;
-  --chart-1: 220 75% 65%;
-  --chart-2: 280 65% 68%;
+  --input: 120 12% 35%;
+  --ring: 120 61% 45%;
+  --chart-1: 120 61% 55%;
+  --chart-2: 146 50% 50%;
   --chart-3: 160 60% 62%;
   --chart-4: 38 90% 65%;
   --chart-5: 142 70% 60%;
