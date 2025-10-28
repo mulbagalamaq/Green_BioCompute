@@ -1,0 +1,9 @@
+Category,Equipment/Process,Carbon Footprint (kgCO2e),Annual Usage (hours/runs),Annual Carbon Impact (kgCO2e)
+Laboratory Equipment,Ultra-low Temperature Freezer (-80°C),5000,8760,43800
+Laboratory Equipment,Biosafety Cabinet,1200,2000,2400
+Laboratory Equipment,CO2 Incubator,800,8760,7008
+Laboratory Equipment,Autoclave,1500,1000,1500
+Laboratory Equipment,Centrifuge,200,500,100
+Laboratory Equipment,PCR Machine,100,1000,100
+Laboratory Equipment,Flow Cytometer,300,1000,300
+Laboratory Equipment,Mass Spectrometer,400,2000,800

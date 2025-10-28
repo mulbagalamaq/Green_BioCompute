@@ -61,17 +61,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const created = await storage.createEquipmentBulk(equipmentData);
 
-      console.log(`Generated embeddings for ${created.length} equipment items...`);
+      console.log(`Generating embeddings for ${created.length} equipment items...`);
       for (const equip of created) {
         const description = createEquipmentDescription(equip);
         const embedding = await generateEmbedding(description);
         
         await storage.createEquipmentEmbedding({
           equipment_id: equip.id,
-          embedding: JSON.stringify(embedding),
+          embedding: embedding as any,
           text_content: description,
         });
       }
+      console.log(`Successfully created ${created.length} equipment items with embeddings`);
 
       res.json({ 
         success: true, 
@@ -84,9 +85,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST /api/chat - RAG chat endpoint (to be implemented in task 8)
+  // POST /api/chat - RAG chat endpoint
   app.post("/api/chat", async (req, res) => {
-    res.status(501).json({ error: "Chat endpoint not yet implemented" });
+    try {
+      const { question } = req.body;
+      
+      if (!question) {
+        return res.status(400).json({ error: "Question is required" });
+      }
+
+      // Import Groq and embeddings functions
+      const Groq = (await import("groq-sdk")).default;
+      const { generateEmbedding } = await import("./embeddings");
+      
+      const groq = new Groq({
+        apiKey: process.env.GROQ_API_KEY,
+      });
+
+      // Generate embedding for the question
+      const questionEmbedding = await generateEmbedding(question);
+      
+      // Search for relevant equipment using vector similarity
+      const relevantEquipment = await storage.searchEquipmentByEmbedding(questionEmbedding, 5);
+      
+      // Build context from relevant equipment
+      const context = relevantEquipment.map((equip, idx) => 
+        `${idx + 1}. ${equip.name} (${equip.category})
+   - Type: ${equip.type}
+   - Manufacturer: ${equip.manufacturer || "N/A"}
+   - Carbon Footprint: ${equip.carbon_footprint_kg} kgCO2e
+   - Annual Usage: ${equip.annual_usage_hours} hours
+   - Annual Carbon Impact: ${equip.annual_carbon_impact_kg} kgCO2e/year
+   - API Available: ${equip.has_api ? `Yes (${equip.api_vendor})` : "No"}`
+      ).join("\n\n");
+
+      const systemPrompt = `You are an expert assistant for a laboratory equipment carbon emissions tracking system. 
+You help users understand their equipment's environmental impact and provide recommendations for optimization.
+
+Based on the equipment data provided, answer the user's question accurately and concisely. 
+If asked for recommendations, prioritize equipment with the highest carbon impact.
+If asked about API integration, mention which equipment has API capabilities available.
+
+Available Equipment Data:
+${context}
+
+Guidelines:
+- Be specific and cite actual equipment names and numbers from the data
+- If no relevant equipment is found, say so honestly
+- Focus on actionable insights about carbon emissions
+- Keep responses clear and professional`;
+
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: question,
+          },
+        ],
+        model: "llama-3.1-70b-versatile",
+        temperature: 0.7,
+        max_tokens: 1024,
+      });
+
+      const answer = chatCompletion.choices[0]?.message?.content || "I couldn't generate a response.";
+
+      res.json({ answer, sources: relevantEquipment.length });
+    } catch (error) {
+      console.error("Error in chat endpoint:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to process chat request" 
+      });
+    }
   });
 
   const httpServer = createServer(app);

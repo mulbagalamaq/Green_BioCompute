@@ -10,78 +10,52 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import type { Equipment as EquipmentType } from "@shared/schema";
+import { Skeleton } from "@/components/ui/skeleton";
 import freezerImg from "@assets/generated_images/Ultra-low_temperature_lab_freezer_15b3eda4.png";
 import incubatorImg from "@assets/generated_images/Laboratory_CO2_incubator_equipment_0bc4c59b.png";
+import { EmptyState } from "@/components/empty-state";
 
-// TODO: Remove mock data
-const mockEquipment = [
-  {
-    id: "ult-001",
-    name: "ULT Freezer -80°C #001",
-    type: "Ultra-Low Freezer",
-    manufacturer: "Thermo Fisher Scientific",
-    status: "active" as const,
-    powerConsumption: 5.0,
-    dailyEmissions: 120,
-    imageUrl: freezerImg,
-  },
-  {
-    id: "inc-001",
-    name: "CO2 Incubator #001",
-    type: "CO2 Incubator",
-    manufacturer: "Eppendorf",
-    status: "active" as const,
-    powerConsumption: 0.8,
-    dailyEmissions: 19.2,
-    imageUrl: incubatorImg,
-  },
-  {
-    id: "ult-002",
-    name: "ULT Freezer -80°C #002",
-    type: "Ultra-Low Freezer",
-    manufacturer: "Thermo Fisher Scientific",
-    status: "idle" as const,
-    powerConsumption: 4.8,
-    dailyEmissions: 115,
-    imageUrl: freezerImg,
-  },
-  {
-    id: "bsc-001",
-    name: "Biosafety Cabinet Class II",
-    type: "Biosafety Cabinet",
-    manufacturer: "Baker Company",
-    status: "active" as const,
-    powerConsumption: 0.1,
-    dailyEmissions: 6.6,
-  },
-  {
-    id: "auto-001",
-    name: "Autoclave Steam Sterilizer",
-    type: "Autoclave",
-    manufacturer: "STERIS",
-    status: "maintenance" as const,
-    powerConsumption: 1.5,
-    dailyEmissions: 4.1,
-  },
-  {
-    id: "pcr-001",
-    name: "PCR Thermal Cycler",
-    type: "PCR Machine",
-    manufacturer: "Bio-Rad",
-    status: "offline" as const,
-    powerConsumption: 0.4,
-    dailyEmissions: 2.7,
-  },
-];
+function getEquipmentImage(type: string) {
+  const lowerType = type.toLowerCase();
+  if (lowerType.includes("freezer") || lowerType.includes("ult")) {
+    return freezerImg;
+  }
+  if (lowerType.includes("incubator")) {
+    return incubatorImg;
+  }
+  return undefined;
+}
+
+function getEquipmentStatus(name: string): "active" | "idle" | "maintenance" | "offline" {
+  return "active";
+}
 
 export default function Equipment() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedEquipment, setSelectedEquipment] = useState<typeof mockEquipment[0] | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<EquipmentType | null>(null);
 
-  const filteredEquipment = mockEquipment.filter((eq) =>
+  const { data: equipment, isLoading } = useQuery<EquipmentType[]>({
+    queryKey: ["/api/equipment"],
+  });
+
+  const filteredEquipment = equipment?.filter((eq) =>
     eq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    eq.type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    eq.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    eq.category.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-semibold">Equipment Inventory</h1>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-64" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -92,16 +66,12 @@ export default function Equipment() {
             Manage and monitor your wet lab equipment
           </p>
         </div>
-        <Button data-testid="button-add-equipment">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Equipment
-        </Button>
       </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search equipment by name or type..."
+          placeholder="Search equipment by name, type, or category..."
           className="pl-10"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -109,48 +79,72 @@ export default function Equipment() {
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredEquipment.map((equipment) => (
-          <EquipmentCard
-            key={equipment.id}
-            {...equipment}
-            onViewDetails={() => setSelectedEquipment(equipment)}
-          />
-        ))}
-      </div>
+      {filteredEquipment.length === 0 && !isLoading ? (
+        <EmptyState 
+          title="No equipment found"
+          description="Upload a CSV file from the Data Upload page to get started"
+        />
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredEquipment.map((eq) => (
+            <EquipmentCard
+              key={eq.id}
+              id={eq.id}
+              name={eq.name}
+              type={eq.type}
+              manufacturer={eq.manufacturer || "Unknown"}
+              status={getEquipmentStatus(eq.name)}
+              powerConsumption={parseFloat(eq.carbon_footprint_kg) / 365 / 24}
+              dailyEmissions={parseFloat(eq.annual_carbon_impact_kg) / 365}
+              imageUrl={getEquipmentImage(eq.type)}
+              onViewDetails={() => setSelectedEquipment(eq)}
+            />
+          ))}
+        </div>
+      )}
 
       <Dialog open={!!selectedEquipment} onOpenChange={() => setSelectedEquipment(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle data-testid="text-dialog-title">{selectedEquipment?.name}</DialogTitle>
             <DialogDescription>
-              {selectedEquipment?.manufacturer} • {selectedEquipment?.type}
+              {selectedEquipment?.manufacturer || "Unknown"} • {selectedEquipment?.type}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {selectedEquipment?.imageUrl && (
+            {selectedEquipment && getEquipmentImage(selectedEquipment.type) && (
               <img
-                src={selectedEquipment.imageUrl}
+                src={getEquipmentImage(selectedEquipment.type)}
                 alt={selectedEquipment.name}
                 className="w-full h-64 object-cover rounded-md"
               />
             )}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Power Consumption</p>
-                <p className="text-lg font-semibold">{selectedEquipment?.powerConsumption} kW</p>
+                <p className="text-sm text-muted-foreground">Carbon Footprint</p>
+                <p className="text-lg font-semibold">{selectedEquipment?.carbon_footprint_kg} kgCO₂e</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Daily Emissions</p>
-                <p className="text-lg font-semibold">{selectedEquipment?.dailyEmissions} kgCO₂e</p>
+                <p className="text-sm text-muted-foreground">Annual Carbon Impact</p>
+                <p className="text-lg font-semibold">{selectedEquipment?.annual_carbon_impact_kg} kgCO₂e/year</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Status</p>
-                <p className="text-lg font-semibold capitalize">{selectedEquipment?.status}</p>
+                <p className="text-sm text-muted-foreground">Annual Usage</p>
+                <p className="text-lg font-semibold">{selectedEquipment?.annual_usage_hours} hours</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Category</p>
+                <p className="text-lg font-semibold">{selectedEquipment?.category}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">API Available</p>
+                <p className="text-lg font-semibold">
+                  {selectedEquipment?.has_api ? `Yes (${selectedEquipment.api_vendor})` : "No"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Equipment ID</p>
-                <p className="text-lg font-mono">{selectedEquipment?.id}</p>
+                <p className="text-lg font-mono text-xs">{selectedEquipment?.id}</p>
               </div>
             </div>
           </div>
